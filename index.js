@@ -1,15 +1,21 @@
 import core from "@actions/core";
-import github from "@actions/github";
+import { configure } from "./configure";
 
 try {
-	const nameToGreet = core.getInput('who-to-greet');
-	console.log(`Hello ${nameToGreet}`);
-	const time = (new Date()).toTimeString();
-	core.setOutput("time", time);
-	core.exportVariable("DOCKER_HOST", "ssh://username@host:port")
+	const privateKey = core.getInput('ssh-private-key');
+	const host = core.getInput('host');
+	const user = core.getInput('user');
+	const port = core.getInput('port');
 
-	const payload = JSON.stringify(github.context.payload, undefined, 2)
-	console.log(payload)
+	const sshUrl = await configure(privateKey, host, user, port);
+
+	core.exportVariable('DOCKER_HOST', sshUrl);
+	core.setOutput('ssh-url', sshUrl);
+
 } catch (error) {
-	core.setFailed(error.message);
+	if (error.message) {
+		core.setFailed(error.message);
+	} else {
+		core.setFailed(error);
+	}
 }

@@ -25,6 +25,6 @@ The ssh port to connect to the remote host. Default: `22`
 
 ## Outputs
 
-## `ssh-url`
+### `ssh-url`
 
-A URL that can be used to set DOCKER_HOST environment variable
+A URL that is used to set DOCKER_HOST environment variable

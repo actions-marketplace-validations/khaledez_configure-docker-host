@@ -1,13 +1,24 @@
-name: 'Hello World'
-description: 'Greet someone and record the time'
+name: 'Configure Docker Host'
+description: 'Sets a DOCKER_HOST environment variable to be used for managing remote docker engines'
+author: "Khaled Ezzughayyar <kz@khaledez.net>"
 inputs:
-  who-to-greet:
-    description: 'Who to greet'
+  ssh-private-key:
+    description: 'SSH Private Key'
     required: true
-    default: 'World'
+  host:
+    description: 'Host IP or domain name'
+    required: true
+  user:
+    description: 'Username on the target host that has docker privileges'
+    required: true
+  port:
+    description: 'SSH port to use'
+    required: true
+    default: '22'
 outputs:
-  time:
-    description: 'The time we greeted you'
+  ssh-url:
+    description: 'The value of the DOCKER_HOST env variable'
 runs:
   using: 'node20'
-  main: 'dist/index.js'
+  main: 'dist/run/index.js'
+  post: 'dist/cleanup/index.js'
