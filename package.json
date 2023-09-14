@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "build": "ncc build index.js -o dist/run --license licenses.txt && ncc build cleanup.js -o dist/cleanup --license licenses.txt",
+    "build": "ncc build index.js --target es2020 -o dist/run --license licenses.txt && ncc build cleanup.js --target es2020 -o dist/cleanup --license licenses.txt",
     "test": "jest"
   },
   "keywords": [],
