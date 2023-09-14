@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import SSHConfig from "ssh-config";
 
 export const targetDir = `${process.env.HOME}/.ssh`
 
@@ -39,29 +40,41 @@ export async function writePrivateKeyToDisk(targetDir, host, user, privateKey) {
 
   await fs.writeFile(targetFile, privateKey)
 
+  await fs.chmod(targetFile, 600)
+
   return targetFile
 }
 
 export async function writeSSHConfig(targetConfigFile, keyFilePath, host, user, port) {
-  const configContent = `Host ${host}
-	HostName			${host}
-	User				${user}
-	Port				${port}
-	IdentityFile			${keyFilePath}
-	StrictHostKeyChecking   no
-	IdentitiesOnly			yes
-	ControlMaster			auto
-	ControlPath 			~/.ssh/control-%C
-	ControlPersist			yes
-	`
+  const config = new SSHConfig()
+  config.append({
+    Host: host,
+    HostName: host,
+    User: user,
+    Port: port,
+    IdentityFile: keyFilePath,
+    StrictHostKeyChecking: "no",
+    IdentitiesOnly: "yes",
+    ControlMaster: "auto",
+    ControlPath: "~/.ssh/control-%C",
+    ControlPersist: "yes",
+  })
 
   try {
     if ((await fs.stat(targetConfigFile)).isFile()) {
       // edit the file
+      const configContent = (await fs.readFile(targetConfigFile)).toString()
+      const existingConfig = SSHConfig.parse(configContent)
+
+      if (existingConfig.find({Host: host})) {
+        existingConfig.remove({Host: host})  
+      } 
+      existingConfig.append(config.compute(host))
+      await fs.writeFile(targetConfigFile, SSHConfig.stringify(existingConfig))
     }
   } catch (error) {
     // create a new file and write
-    await fs.writeFile(targetConfigFile, configContent)
+    await fs.writeFile(targetConfigFile, SSHConfig.stringify(config))
   }
 }
 

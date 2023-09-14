@@ -38,7 +38,7 @@ export async function writePrivateKeyToDisk(targetDir, host, user, privateKey) {
     privateKey += "\n"
   }
 
-  await fs.writeFile(targetFile, privateKey)
+  await fs.writeFile(targetFile, privateKey, { mode: 0o600 })
 
   return targetFile
 }
@@ -64,9 +64,9 @@ export async function writeSSHConfig(targetConfigFile, keyFilePath, host, user, 
       const configContent = (await fs.readFile(targetConfigFile)).toString()
       const existingConfig = SSHConfig.parse(configContent)
 
-      if (existingConfig.find({Host: host})) {
-        existingConfig.remove({Host: host})  
-      } 
+      if (existingConfig.find({ Host: host })) {
+        existingConfig.remove({ Host: host })
+      }
       existingConfig.append(config.compute(host))
       await fs.writeFile(targetConfigFile, SSHConfig.stringify(existingConfig))
     }
@@ -79,5 +79,5 @@ export async function writeSSHConfig(targetConfigFile, keyFilePath, host, user, 
 export async function cleanup(targetDir, host, user) {
   const fileToDelete = targetKeyFile(targetDir, host, user);
 
-  await fs.rm(fileToDelete)
+  await fs.rm(fileToDelete, { force: true })
 }
