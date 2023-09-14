@@ -1,5 +1,5 @@
 import core from "@actions/core";
-import { cleanup, targetDir } from "./configure";
+import { cleanup, targetDir } from "./configure.js";
 
 try {
 	const host = core.getInput('host');

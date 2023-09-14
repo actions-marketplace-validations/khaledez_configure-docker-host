@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import os from "node:os";
+import path from "node:path";
 import { cleanup, parsePort, writePrivateKeyToDisk, writeSSHConfig } from "./configure";
 
 describe("parsing an input port", () => {
@@ -47,6 +48,9 @@ EmVq/UidPHKhBLO1zS0TAAAAFGtoYWxlZEBtYWNtaW5pLmxvY2FsAQ==
 
 describe("writing SSH config", () => {
 	test("successful writing", async () => {
-		await writeSSHConfig("some-file", "~/.ssh/file.pem", "localhost", "root", 22)
+		const targetFile = path.join(os.tmpdir(), "ssh-config")
+		await writeSSHConfig(targetFile, "~/.ssh/file.pem", "localhost", "ubuntu", 22)
+
+		console.log((await fs.readFile(targetFile)).toString())
 	})
 })
