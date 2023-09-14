@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import SSHConfig from "ssh-config";
+import SSHConfig, { parse as parseSSHConfig } from "./ssh-config/ssh-config.js";
 
 export const targetDir = `${process.env.HOME}/.ssh`
 
@@ -62,7 +62,7 @@ export async function writeSSHConfig(targetConfigFile, keyFilePath, host, user, 
     if ((await fs.stat(targetConfigFile)).isFile()) {
       // edit the file
       const configContent = (await fs.readFile(targetConfigFile)).toString()
-      const existingConfig = SSHConfig.parse(configContent)
+      const existingConfig = parseSSHConfig(configContent)
 
       if (existingConfig.find({ Host: host })) {
         existingConfig.remove({ Host: host })

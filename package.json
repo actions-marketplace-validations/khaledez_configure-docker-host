@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "build": "mkdir -p dist && cp index.js configure.js cleanup.js dist/ && node build.js",
+    "build": "mkdir -p dist/ssh-config && cp index.js configure.js cleanup.js dist/ && cp ssh-config/*.js dist/ssh-config/ && node build.js",
     "clean": "rm -rf dist",
     "test": "jest"
   },
@@ -14,8 +14,7 @@
   "license": "BSD-2",
   "dependencies": {
     "@actions/core": "^1.10.1",
-    "@actions/github": "^5.1.1",
-    "ssh-config": "^4.4.0"
+    "@actions/github": "^5.1.1"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.22.15",

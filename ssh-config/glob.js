@@ -1,5 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 function escapeChars(text, chars) {
     for (let char of chars) {
         text = text.replace(new RegExp('\\' + char, 'g'), '\\' + char);
@@ -36,5 +34,4 @@ function glob(patternList, text) {
     }
     return result;
 }
-exports.default = glob;
-//# sourceMappingURL=glob.js.map
+export default glob;

@@ -1,23 +1,16 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.stringify = exports.parse = exports.LineType = void 0;
-const glob_1 = __importDefault(require("./glob"));
-const child_process_1 = require("child_process");
-const os_1 = __importDefault(require("os"));
+import { spawnSync } from 'node:child_process';
+import glob from './glob.js';
 const RE_SPACE = /\s/;
 const RE_LINE_BREAK = /\r|\n/;
 const RE_SECTION_DIRECTIVE = /^(Host|Match)$/i;
 const RE_MULTI_VALUE_DIRECTIVE = /^(GlobalKnownHostsFile|Host|IPQoS|SendEnv|UserKnownHostsFile|ProxyCommand|Match|CanonicalDomains)$/i;
 const RE_QUOTE_DIRECTIVE = /^(?:CertificateFile|IdentityFile|IdentityAgent|User)$/i;
 const RE_SINGLE_LINE_DIRECTIVE = /^(Include|IdentityFile)$/i;
-var LineType;
+export var LineType;
 (function (LineType) {
     LineType[LineType["DIRECTIVE"] = 1] = "DIRECTIVE";
     LineType[LineType["COMMENT"] = 2] = "COMMENT";
-})(LineType = exports.LineType || (exports.LineType = {}));
+})(LineType || (LineType = {}));
 const MULTIPLE_VALUE_PROPS = [
     'IdentityFile',
     'LocalForward',
@@ -56,15 +49,15 @@ function match(criteria, context) {
           ${criterion}
         }
         main`;
-                return (0, child_process_1.spawnSync)(command, { shell: true }).status === 0;
+                return spawnSync(command, { shell: true }).status === 0;
             case 'host':
-                return (0, glob_1.default)(criterion, context.params.HostName);
+                return glob(criterion, context.params.HostName);
             case 'originalhost':
-                return (0, glob_1.default)(criterion, context.params.OriginalHost);
+                return glob(criterion, context.params.OriginalHost);
             case 'user':
-                return (0, glob_1.default)(criterion, context.params.User);
+                return glob(criterion, context.params.User);
             case 'localuser':
-                return (0, glob_1.default)(criterion, context.params.LocalUser);
+                return glob(criterion, context.params.LocalUser);
         }
     };
     for (const key in criteria) {
@@ -75,7 +68,7 @@ function match(criteria, context) {
     }
     return true;
 }
-class SSHConfig extends Array {
+export default class SSHConfig extends Array {
     /**
      * Parse SSH config text into structured object.
      */
@@ -96,8 +89,8 @@ class SSHConfig extends Array {
                 Host: opts.Host,
                 HostName: opts.Host,
                 OriginalHost: opts.Host,
-                User: os_1.default.userInfo().username,
-                LocalUser: os_1.default.userInfo().username,
+                User: "sample",
+                LocalUser: "sample",
             },
             inFinalPass: false,
             doFinalPass: false,
@@ -125,7 +118,7 @@ class SSHConfig extends Array {
             for (const line of this) {
                 if (line.type !== LineType.DIRECTIVE)
                     continue;
-                if (line.param === 'Host' && (0, glob_1.default)(line.value, context.params.Host)) {
+                if (line.param === 'Host' && glob(line.value, context.params.Host)) {
                     let canonicalizeHostName = false;
                     let canonicalDomains = [];
                     setProperty(line.param, line.value);
@@ -140,11 +133,11 @@ class SSHConfig extends Array {
                             }
                         }
                     }
-                    console.log(canonicalizeHostName, canonicalDomains);
+                    
                     if (canonicalDomains.length > 0 && canonicalizeHostName) {
                         for (const domain of canonicalDomains) {
                             const host = `${line.value}.${domain}`;
-                            const { stdout } = (0, child_process_1.spawnSync)('nslookup', [host]);
+                            const { stdout } = spawnSync('nslookup', [host]);
                             if (!/server can't find/.test(stdout.toString())) {
                                 context.params.Host = host;
                                 setProperty('Host', host);
@@ -295,13 +288,12 @@ class SSHConfig extends Array {
         return config;
     }
 }
-exports.default = SSHConfig;
 SSHConfig.DIRECTIVE = LineType.DIRECTIVE;
 SSHConfig.COMMENT = LineType.COMMENT;
 /**
  * Parse SSH config text into structured object.
  */
-function parse(text) {
+export function parse(text) {
     let i = 0;
     let chr = next();
     let config = new SSHConfig();
@@ -492,11 +484,10 @@ function parse(text) {
     }
     return configWas;
 }
-exports.parse = parse;
 /**
  * Stringify structured object into SSH config text.
  */
-function stringify(config) {
+export function stringify(config) {
     let str = '';
     function formatValue(value, quoted) {
         if (Array.isArray(value)) {
@@ -533,5 +524,3 @@ function stringify(config) {
     config.forEach(format);
     return str;
 }
-exports.stringify = stringify;
-//# sourceMappingURL=ssh-config.js.map
