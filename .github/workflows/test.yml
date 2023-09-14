@@ -9,4 +9,10 @@ jobs:
         id: hello
         uses: khaledez/configure-docker-host@v1
         with:
-          who-to-greet: ${{ github.actor }}
+          ssh-private-key: "SAMPLE"
+          host: "localhost"
+          user: "ubuntu"
+      - name: validate
+        run: |
+          echo "docker host var: $DOCKER_HOST"
+          ls ~/.ssh
