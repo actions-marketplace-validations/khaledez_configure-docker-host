@@ -7,7 +7,7 @@ jobs:
     steps:
       - name: configure docker-host
         id: hello
-        uses: khaledez/configure-docker-host@v1
+        uses: khaledez/configure-docker-host@v1.1
         with:
           ssh-private-key: "SAMPLE"
           host: "localhost"
