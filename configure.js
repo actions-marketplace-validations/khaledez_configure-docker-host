@@ -54,7 +54,7 @@ export async function writeSSHConfig(targetConfigFile, keyFilePath, host, user, 
     StrictHostKeyChecking: "no",
     IdentitiesOnly: "yes",
     ControlMaster: "auto",
-    ControlPath: "~/.ssh/control-%C",
+    ControlPath: "~/.ssh/socket-%r@%h:%p",
     ControlPersist: "yes",
   })
 
